@@ -27,7 +27,6 @@ public String getStdname() {
 public void setStdname(String stdname) {
 	this.stdname = stdname;
 }
-
 public Address getAddress() {
 	return address;
 }
