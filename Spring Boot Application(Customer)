@@ -1,0 +1,350 @@
+                                                                          SpringBootCustomerDemo         
+                                                                         =======================
+
+**********************************************************************************com.io********************************************************************************
+
+
+SpringBootcustomerDemoApplication.java
+========================================
+package com.ia;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootcustomerDemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootcustomerDemoApplication.class, args);
+	}
+
+}
+
+********************************************************************************com.io.entity***************************************************************************
+
+Customer.java
+==============
+package com.ia.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="customer")
+public class Customer {
+	
+	@Id
+	@Column(name="cid",length=10)
+   private int cId;
+	@Column(name="cname",length=10)
+   private String cName;
+	@Column(name="csal",length=10)
+   private int cSal;
+	@Column(name="cadd",length=10)
+   private String cAdd;
+   
+    public int getcId() {
+	 return cId;
+   }
+public void setcId(int cId) {
+	this.cId = cId;
+}
+public String getcName() {
+	return cName;
+}
+public void setcName(String cName) {
+	this.cName = cName;
+}
+public int getcSal() {
+	return cSal;
+}
+public void setcSal(int cSal) {
+	this.cSal = cSal;
+}
+public String getcAdd() {
+	return cAdd;
+}
+public void setcAdd(String cAdd) {
+	this.cAdd = cAdd;
+}
+   
+    public Customer() {
+		// TODO Auto-generated constructor stub
+	}
+	public Customer(int cId, String cName, int cSal, String cAdd) {
+		super();
+		this.cId = cId;
+		this.cName = cName;
+		this.cSal = cSal;
+		this.cAdd = cAdd;
+	}
+	@Override
+	public String toString() {
+		return "Customer [cId=" + cId + ", cName=" + cName + ", cSal=" + cSal + ", cAdd=" + cAdd + "]";
+	}
+    
+    
+   
+}
+
+
+*********************************************************************************com.io.service*************************************************************************
+
+CustomerService.java
+=====================
+package com.ia.service;
+
+import java.util.List;
+
+import java.util.List;
+
+import com.ia.entity.Customer;
+
+public interface CustomerService {
+	
+       Customer addCustomer(Customer customer);
+       Customer updateCustomer(Customer customer);
+       String deleteCustomer(int cId);
+       Customer getCustomer(int cId);
+       List <Customer> getAllCustomers();
+	
+	
+	
+}
+CustomerServiceImpl.java
+==========================
+package com.ia.service;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ia.dao.CustomerDao;
+import com.ia.entity.Customer;
+
+@Service
+@Transactional
+public class CustomerServiceImpl implements CustomerService {
+	
+	@Autowired
+	CustomerDao dao;
+
+	@Override
+	public Customer addCustomer(Customer customer) {
+		return dao.addCustomer(customer);
+	}
+
+	@Override
+	public Customer updateCustomer(Customer customer) {
+		
+		return dao.updateCustomer(customer);
+	}
+
+	@Override
+	public String deleteCustomer(int cId) {
+		
+		return dao.deleteCustomer(cId);
+	}
+
+	@Override
+	public Customer getCustomer(int cId) {
+		// TODO Auto-generated method stub
+		return dao.getCustomer(cId);
+	}
+
+	@Override
+	public List <Customer> getAllCustomers() {
+		
+		return dao.getAllCustomers();
+	}
+
+}
+
+
+***********************************************************************************com.io.dao***************************************************************************
+
+CustomerDao.java
+=================
+package com.ia.dao;
+
+import java.util.List;
+
+import com.ia.entity.Customer;
+
+public interface CustomerDao {
+
+	Customer addCustomer(Customer customer);
+    Customer updateCustomer(Customer customer);
+    String deleteCustomer(int cId);
+    Customer getCustomer(int cId);
+    List <Customer> getAllCustomers();
+	
+	
+}
+
+CustomerDaoImpl.java
+=====================
+package com.ia.dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
+import org.springframework.stereotype.Repository;
+
+import com.ia.entity.Customer;
+
+@Repository
+public class CustomerDaoImpl implements CustomerDao {
+
+	@PersistenceContext
+	EntityManager entity;
+	
+	@Override
+	public Customer addCustomer(Customer customer) {
+		entity.persist(customer);
+		return entity.find(Customer.class, customer.getcId());
+	}
+
+	@Override
+	public Customer updateCustomer(Customer customer) {
+	
+		return entity.merge(customer);
+	}
+
+	@Override
+	public String deleteCustomer(int cId) {
+		Customer c = entity.find(Customer.class,cId);
+		if(c!=null) {
+			return "find customer successfully";
+		}
+		else {
+			return "customer not found";
+		}
+		
+	}
+
+	@Override
+	public Customer getCustomer(int cId) {
+		
+		return entity.find(Customer.class,cId);
+	}
+
+	@Override
+	public List<Customer> getAllCustomers() {
+		TypedQuery<Customer> result = entity.createQuery("select c from customer c",Customer.class);
+		return result.getResultList();
+	}
+
+}
+
+***************************************************************************application.properties***********************************************************************
+
+server.port=2323
+spring.datasource.url=jdbc:postgresql://localhost:5432/sweetyj68
+spring.datasource.username=postgres
+spring.datasource.password=Sweety0608@
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+**********************************************************************SpringBootcustomerDemoApplicationTests.java*******************************************************
+
+package com.ia;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.ia.entity.Customer;
+import com.ia.service.CustomerService;
+
+
+@SpringBootTest
+class SpringBootcustomerDemoApplicationTests {
+
+	@Autowired
+	CustomerService service;
+	
+//	@Test
+//	void testAddCustomer() {
+//		Customer cust1 = new Customer(111,"sweety",1111,"jaipur");
+//		Customer c1=service.addCustomer(cust1);
+//		assertEquals(cust1.getcName(),"sweety");
+//		
+//	}
+
+//	@Test
+//	void testupdateCustomer() {
+//		Customer cust1 = new Customer(111,"sweetyjain",1111,"jaipur");
+//		Customer c1=service.updateCustomer(cust1);
+//		assertEquals(cust1.getcName(),"sweetyjain");
+//		
+//	}
+	
+//	@Test
+//	void testGetAllCustomers() {
+//		List <Customer> customers = service.getAllCustomers();
+//		assertTrue(customers.size()>0,"sweetyjain");
+//		
+//	}
+	
+	@Test
+	void testDeleteEmployee() {
+		String ctmr = service.deleteCustomer(111);
+		assertEquals(ctmr,"customer deleted");
+		
+	}
+}
+
+***************************************************************************************Output**************************************************************************
+
+postgres=# \c sweetyj68
+You are now connected to database "sweetyj68" as user "postgres".
+sweetyj68=# \dt
+             List of relations
+ Schema |     Name      | Type  |  Owner
+--------+---------------+-------+----------
+ public | book          | table | postgres
+ public | customer      | table | postgres
+ public | emp           | table | postgres
+ public | employee      | table | postgres
+ public | pizza         | table | postgres
+ public | pizzaa        | table | postgres
+ public | springbootemp | table | postgres
+ public | student       | table | postgres
+(8 rows)
+
+
+sweetyj68=# select * from customer;
+ cid | cadd | cname | csal
+-----+------+-------+------
+(0 rows)
+
+
+sweetyj68=# select * from customer;
+ cid |  cadd  | cname  | csal
+-----+--------+--------+------
+ 111 | jaipur | sweety | 1111
+(1 row)
+
+
+sweetyj68=# select * from customer;
+ cid |  cadd  |   cname    | csal
+-----+--------+------------+------
+ 111 | jaipur | sweetyjain | 1111
+(1 row)
+
